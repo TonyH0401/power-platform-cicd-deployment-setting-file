@@ -1,0 +1,29 @@
+pool:
+  name: DevOps PP
+#Your build pipeline references the ‘SolutionName’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+
+steps:
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.tool-installer.PowerPlatformToolInstaller@2
+    displayName: "Power Platform Tool Installer "
+    #Your build pipeline references an undefined variable named ‘SolutionName’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.pack-solution.PowerPlatformPackSolution@2
+    displayName: "Power Platform Pack Solution "
+    inputs:
+      SolutionSourceFolder: "$(System.DefaultWorkingDirectory)/_Final-Assignment-Pipeline/SalesConfiguration/Managed"
+      SolutionOutputFile: '$(Build.StagingDirectory)\$(SolutionName).zip'
+      SolutionType: Managed
+      #Your build pipeline references an undefined variable named ‘SolutionName’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.import-solution.PowerPlatformImportSolution@2
+    displayName: "Power Platform Import Solution "
+    inputs:
+      authenticationType: PowerPlatformSPN
+      PowerPlatformSPN: "TEST-ENV IMPORT DESTINATION"
+      SolutionInputFile: '$(Build.StagingDirectory)\$(SolutionName).zip'
+
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.publish-customizations.PowerPlatformPublishCustomizations@2
+    displayName: "Power Platform Publish Customizations "
+    inputs:
+      authenticationType: PowerPlatformSPN
+      PowerPlatformSPN: "TEST-ENV IMPORT DESTINATION"
