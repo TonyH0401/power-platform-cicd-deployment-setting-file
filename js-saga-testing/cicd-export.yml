@@ -1,0 +1,61 @@
+pool:
+  name: Azure Pipelines # Should change this to the self-hosted Agent Pool
+#Your build pipeline references the ‘SolutionName’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+#Your build pipeline references the ‘SolutionName’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+#Your build pipeline references the ‘SolutionName’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+#Your build pipeline references the ‘SolutionName’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+#Your build pipeline references the ‘SolutionName’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+#Your build pipeline references the ‘System.AccessToken’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+
+steps:
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.tool-installer.PowerPlatformToolInstaller@2
+    displayName: "Power Platform Tool Installer "
+
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.whoami.PowerPlatformWhoAmi@2
+    displayName: "Power Platform WhoAmI "
+    inputs:
+      authenticationType: PowerPlatformSPN
+      PowerPlatformSPN: "DEV-ENV EXPORT"
+
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.export-solution.PowerPlatformExportSolution@2
+    displayName: "Power Platform Export Solution "
+    inputs:
+      authenticationType: PowerPlatformSPN
+      PowerPlatformSPN: "DEV-ENV EXPORT"
+      SolutionName: "$(SolutionName)"
+      SolutionOutputFile: '$(Build.ArtifactStagingDirectory)\$(SolutionName)_Unmanaged.zip '
+
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.unpack-solution.PowerPlatformUnpackSolution@2
+    displayName: "Power Platform Unpack Solution "
+    inputs:
+      SolutionInputFile: '$(Build.ArtifactStagingDirectory)\$(SolutionName)_Unmanaged.zip '
+      SolutionTargetFolder: '$(Build.SourcesDirectory)\$(SolutionName)\Unmanaged'
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Artifact: drop"
+    inputs:
+      PathtoPublish: '$(Build.SourcesDirectory)\$(SolutionName)\Unmanaged'
+
+  - script: |
+      cd $(Build.SourcesDirectory)
+
+      ::Set a per-project email address and username
+      git config user.email "Phu.LeGia@selfstudy.store"
+      git config user.name "Phu Le Gia"
+
+      ::Navigate to the main branch
+      git checkout -B main
+
+      ::Update the local version of a repository from a remote
+      git pull
+
+      ::Add all files to the Git repository
+      git add --all
+
+      ::Record the changes in the repository
+      git commit -m "Updated the solution"
+
+      ::Authenticate against a git repository in a build process
+      git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" push origin main
+      git branch --set-upstream-to=origin/main main
+    displayName: "Command Line Script"
