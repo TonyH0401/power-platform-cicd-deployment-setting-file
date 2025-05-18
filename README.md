@@ -17,3 +17,11 @@ Here are the tutorials for the Azure DevOps export and import pipeline I used:
   - https://powerplatformtrainings.com/2023/09/19/azure-devops-deployment-pipeline-code-reference-part-03/.
 
 # Development Note
+
+_Ordered from newest to oldest_
+
+## 2025-05-16
+
+My original implementation of the Azure pipeline with a solution was normal because the solution was simple, so there wasn't any problem arised. However, there are solutions which are complex because there are a lot of customizations. For those solutions, before running the pipeline, you need to import the PCF, the plugins with the plugin steps (no need to configure anything) and the connection references (or connection).
+
+A little note with the PCF, changing the PCF will not be reflected in the managed solution (it will be reflected in the unmanaged solution), you need to change the version in the manifest file in order for the PCF to be reflected in the managed solution.
